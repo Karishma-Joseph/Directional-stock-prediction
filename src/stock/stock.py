@@ -1,8 +1,8 @@
 import yfinance as yf
-from stock_metrics import *
+from .stock_metrics import *
 
 
-class stock:
+class Stock:
     LINEAR_REGRESSION_EMA_SPAN = 50
 
     def __init__(self, ticker_symbol, start_date, end_date):
