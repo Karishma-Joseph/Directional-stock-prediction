@@ -224,6 +224,9 @@ def price_to_book_ratio(data, ticker, company_name):
     return data
 
 
+# Function inserts data according to date. If dates match or is between date range, data is inserted
+# Fills in missing data in a forward fashion until next value occurs.
+# Can be used with sentiment features as well
 def insert_data(data, new_data, column_name):
     # create empty new column
     data[column_name] = np.nan
