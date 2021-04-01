@@ -3,7 +3,6 @@ from .stock_metrics import *
 
 
 class Stock:
-    SPAN = 50
 
     def __init__(self, ticker_symbol, company_name, start_date, end_date):
         self.START_DATE = start_date
@@ -20,8 +19,8 @@ class Stock:
         self.data = rsi_metric(data=self.data)
         self.data = macd_metric(data=self.data)
         self.data = on_balance_volume(data=self.data)
-        self.data = exponential_moving_average(data=self.data, col=metrics.CLOSE_PRICE, span=self.SPAN)
-        self.data = ema_trend_indicator(data=self.data, ema_span=self.SPAN)
+        self.data = exponential_moving_average(data=self.data, col=metrics.CLOSE_PRICE, span=metrics.SPAN)
+        self.data = ema_trend_indicator(data=self.data, ema_span=metrics.SPAN)
         self.data = increase_decrease(data=self.data, col=metrics.CLOSE_PRICE)
 
         # Fundamental Indicators

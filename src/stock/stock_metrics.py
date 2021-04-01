@@ -25,6 +25,8 @@ class metrics:
     EPS = "eps"
     PE = "pe_ratio"
     DEBT_EQUITY = "debt_to_equity"
+    SPAN = 50
+
 
 
 def increase_decrease(data, col):
