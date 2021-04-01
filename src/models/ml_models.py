@@ -31,22 +31,23 @@ def logistic_regression_model(data, x_col, y_col):
     predictions = lr_model.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
     r2 = r2_score(y_test, predictions)
-    pickle.dump(lr_model, open(model_name.NEURAL_NETWORK_NAME, 'wb'))
+    pickle.dump(lr_model, open(model_name.LOGISTIC_REGRESSION, 'wb'))
     return
 
-def decision_tree(data, x_col, y_col):
+def decision_tree_model(data, x_col, y_col):
     X = data[[x_col]]
     y = data[y_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
 
     # Create Decision Tree classifer object
-    clf = DecisionTreeClassifier()
+    decision_tree = DecisionTreeClassifier()
 
     # Train Decision Tree Classifer
-    clf = clf.fit(X_train, y_train)
+    decision_tree = decision_tree.fit(X_train, y_train)
 
     # Predict the response for test dataset
-    y_pred = clf.predict(X_test)
+    y_pred = decision_tree.predict(X_test)
+    pickle.dump(decision_tree, open(model_name.LOGISTIC_REGRESSION, 'wb'))
     return
 
 def svm_model(data, x_col, y_col):
@@ -55,13 +56,14 @@ def svm_model(data, x_col, y_col):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
 
     # Create a svm Classifier
-    clf = SVC(kernel='linear')  # Linear Kernel
+    svm = SVC(kernel='linear')  # Linear Kernel
 
     # Train the model using the training sets
-    clf.fit(X_train, y_train)
+    svm.fit(X_train, y_train)
 
     # Predict the response for test dataset
-    y_pred = clf.predict(X_test)
+    y_pred = svm.predict(X_test)
+    pickle.dump(svm, open(model_name.SVM, 'wb'))
     return
 
 def neural_net_model(data, x_col, y_col):
