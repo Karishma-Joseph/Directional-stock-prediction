@@ -8,6 +8,9 @@ from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from keras.optimizers import Adam
+import os
+
+script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 
 
 class ModelAttributes:
@@ -15,8 +18,8 @@ class ModelAttributes:
     NEURAL_NETWORK = "neural_network_{}"
     SVM = "svm_{}"
     DECISTION_TREE = "decision_tree_{}"
-    MODEL_LOCATION = "/saved_models/{}"
-    MODEL_METRICS_LOCATION = "/model_metrics/{}"
+    MODEL_LOCATION = script_dir + "/saved_models/{}"
+    MODEL_METRICS_LOCATION = script_dir + "/model_metrics/{}"
     TEST_SIZE = 0.33
 
 
@@ -83,7 +86,7 @@ def neural_net_model(data, x_col, y_col, interval):
 
 
 def separate_data(data, x_col, y_col):
-    X = data[[x_col]]
+    X = data[x_col]
     y = data[y_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=ModelAttributes.TEST_SIZE)
     return X_train, X_test, y_train, y_test
@@ -101,9 +104,9 @@ def model_metrics(actual, prediction, model_name):
     accuracy = accuracy_score(y_true=actual, y_pred=prediction)
     f1 = f1_score(y_true=actual, y_pred=prediction)
 
-    metrics = [precision, recall, accuracy, f1]
+    metrics = [[precision, recall, accuracy, f1]]
     metrics_df = pd.DataFrame(metrics, columns=['precision', 'recall', 'accuracy', 'f1'])
-    metrics_df.to_csv(ModelAttributes.MODEL_METRICS_LOCATION.format(model_name))
+    metrics_df.to_csv(ModelAttributes.MODEL_METRICS_LOCATION.format(model_name) + ".csv")
     return
 
 
