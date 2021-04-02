@@ -81,7 +81,7 @@ def neural_net_model(data, x_col, y_col, interval):
 
     model_name = ModelAttributes.NEURAL_NETWORK.format(interval)
     evaluate_model(model, X_test, y_test, model_name)
-    save_model(model, model_name, ModelAttributes.MODEL_LOCATION)
+    save_model(model, model_name, ModelAttributes.MODEL_LOCATION + ".pkl")
     return
 
 
@@ -111,5 +111,7 @@ def model_metrics(actual, prediction, model_name):
 
 
 def save_model(model, model_name, location):
-    pickle.dump(model, open(location.format(model_name), 'wb'))
+    file = open(location.format(model_name), 'wb')
+    pickle.dump(model, file)
+    file.close()
     return
