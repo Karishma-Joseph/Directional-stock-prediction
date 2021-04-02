@@ -1,86 +1,69 @@
 import pickle
-
+import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
-from sklearn.metrics import mean_squared_error, r2_score, f1_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from keras.optimizers import Adam
 
 
-class model_attributes:
+class ModelAttributes:
     LOGISTIC_REGRESSION = "logistic_regression_{}"
     NEURAL_NETWORK = "neural_network_{}"
     SVM = "svm_{}"
     DECISTION_TREE = "decision_tree_{}"
     MODEL_LOCATION = "/saved_models/{}"
+    MODEL_METRICS_LOCATION = "/model_metrics/{}"
+    TEST_SIZE = 0.33
 
 
 # Logistic Regression
 def logistic_regression_model(data, x_col, y_col, interval):
-    # Required Column Names
-    X = data[[x_col]]
-    y = data[y_col]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+    X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
-    lr = LogisticRegression().fit(X_train, y_train)
-    r_sq = lr.score(X_train, y_train)
+    lr = LogisticRegression()
+    lr = lr.fit(X_train, y_train)
 
-    predictions = lr.predict(X_test)
-    mse = mean_squared_error(y_test, predictions)
-    r2 = r2_score(y_test, predictions)
-    model_name = model_attributes.LOGISTIC_REGRESSION.format(interval)
-    save_model(lr, model_name, model_attributes.MODEL_LOCATION)
+    model_name = ModelAttributes.LOGISTIC_REGRESSION.format(interval)
+    evaluate_model(lr, X_test, y_test, model_name)
+    save_model(lr, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
 
 def decision_tree_model(data, x_col, y_col, interval):
-    X = data[[x_col]]
-    y = data[y_col]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+    X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
-    # Create Decision Tree classifer object
     decision_tree = DecisionTreeClassifier()
-
-    # Train Decision Tree Classifer
     decision_tree = decision_tree.fit(X_train, y_train)
 
-    # Predict the response for test dataset
-    y_pred = decision_tree.predict(X_test)
-    model_name = model_attributes.DECISTION_TREE.format(interval)
-    save_model(decision_tree, model_name, model_attributes.MODEL_LOCATION)
+    model_name = ModelAttributes.DECISTION_TREE.format(interval)
+    evaluate_model(decision_tree, X_test, y_test, model_name)
+    save_model(decision_tree, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
 
 def svm_model(data, x_col, y_col, interval):
-    X = data[[x_col]]
-    y = data[y_col]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+    X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
-    # Create a svm Classifier
-    svm = SVC(kernel='linear')  # Linear Kernel
-
-    # Train the model using the training sets
+    svm = SVC(kernel='linear')  # kernal might need to be changed
     svm.fit(X_train, y_train)
 
-    # Predict the response for test dataset
-    y_pred = svm.predict(X_test)
-    model_name = model_attributes.SVM.format(interval)
-    save_model(svm, model_name, model_attributes.MODEL_LOCATION)
+    model_name = ModelAttributes.SVM.format(interval)
+    evaluate_model(svm, X_test, y_test, model_name)
+    save_model(svm, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
 
 def neural_net_model(data, x_col, y_col, interval):
-    X = data[[x_col]]
-    y = data[y_col]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
+    X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
     # Create a model with keras
-    # create and fit the LSTM network
+    # create and fit model
     model = Sequential()
-    model.add(Dense(64, input_dim=X.shape[1], activation='relu'))
+    model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
     model.add(Dropout(0.2))
     model.add(Dense(12, activation='relu'))
     model.add(Dropout(0.2))
@@ -92,8 +75,33 @@ def neural_net_model(data, x_col, y_col, interval):
     model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['acc'])
     # fit the keras model on the dataset
     history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50, batch_size=12)
-    model_name = model_attributes.NEURAL_NETWORK.format(interval)
-    save_model(model, model_name, model_attributes.MODEL_LOCATION)
+
+    model_name = ModelAttributes.NEURAL_NETWORK.format(interval)
+    evaluate_model(model, X_test, y_test, model_name)
+    save_model(model, model_name, ModelAttributes.MODEL_LOCATION)
+    return
+
+def separate_data(data, x_col, y_col):
+    X = data[[x_col]]
+    y = data[y_col]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=ModelAttributes.TEST_SIZE)
+    return X_train, X_test, y_train, y_test
+
+def evaluate_model(model, X_test, y_test, model_name):
+    y_pred = model.predict(X_test)
+    model_metrics(actual=y_test, prediction=y_pred, model_name=model_name)
+
+
+def model_metrics(actual, prediction, model_name):
+    # generate precision, recall, accuracy and f1 score for the models. return object
+    precision = precision_score(y_true=actual, y_pred=prediction)
+    recall = recall_score(y_true=actual, y_pred=prediction)
+    accuracy = accuracy_score(y_true=actual, y_pred=prediction)
+    f1 = f1_score(y_true=actual, y_pred=prediction)
+
+    metrics = [precision, recall, accuracy, f1]
+    metrics_df = pd.DataFrame(metrics, columns=['precision', 'recall', 'accuracy', 'f1'])
+    metrics_df.to_csv(ModelAttributes.MODEL_METRICS_LOCATION.format(model_name))
     return
 
 
