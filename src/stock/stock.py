@@ -33,6 +33,13 @@ class Stock:
         # self.data = pe_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
         # self.data = debt_to_equity_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
         # self.data = price_to_book_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+
+        # Semantic News Features
+        # Match the times and insert semantic news features
+        self.data = semantic_news_features(data=self.data)
+
+        # Semantic Twitter Features
+        self.data = semantic_twitter_features(data=self.data)
         return
 
     def save_data(self):

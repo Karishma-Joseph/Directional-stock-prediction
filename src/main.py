@@ -3,7 +3,7 @@ from models import *
 
 
 if __name__ == '__main__':
-    intervals = [Metrics.ONE_DAY]
+    intervals = [Metrics.ONE_DAY, Metrics.ONE_MIN]
     for interval in intervals:
         apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date='2018-01-01', end_date='2018-2-31', interval=interval)
         apple_stock.generate_metrics()

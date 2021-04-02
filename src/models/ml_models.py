@@ -8,6 +8,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
+from sklearn.preprocessing import MinMaxScaler
 from keras.models import model_from_json
 import os
 
