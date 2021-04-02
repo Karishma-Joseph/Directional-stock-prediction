@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from sklearn.model_selection import train_test_split
@@ -20,6 +21,7 @@ class ModelAttributes:
     NEURAL_NETWORK = "neural_network_{}"
     SVM = "svm_{}"
     DECISTION_TREE = "decision_tree_{}"
+    RANDOM_FOREST = "random_forest_{}"
     MODEL_LOCATION = script_dir + "/saved_models/{}"
     MODEL_METRICS_LOCATION = script_dir + "/model_metrics/{}"
     TEST_SIZE = 0.33
@@ -45,6 +47,17 @@ def decision_tree_model(data, x_col, y_col, interval):
     decision_tree = decision_tree.fit(X_train, y_train)
 
     model_name = ModelAttributes.DECISTION_TREE.format(interval)
+    evaluate_model(decision_tree, X_test, y_test, model_name)
+    save_model(decision_tree, model_name, ModelAttributes.MODEL_LOCATION)
+    return
+
+def random_forest_model(data, x_col, y_col, interval):
+    X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
+
+    random_forest = RandomForestClassifier(max_depth=3, random_state=0, n_estimators=500)
+    random_forest = random_forest.fit(X_train, y_train)
+
+    model_name = ModelAttributes.RANDOM_FOREST.format(interval)
     evaluate_model(decision_tree, X_test, y_test, model_name)
     save_model(decision_tree, model_name, ModelAttributes.MODEL_LOCATION)
     return

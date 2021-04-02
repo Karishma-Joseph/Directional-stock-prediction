@@ -35,6 +35,17 @@ class Test(TestCase):
         os.remove(path_metrics)
         return
 
+    def test_random_forest_model(self):
+        random_forest_model(test_data, x_col=x_col, y_col=y_col, interval=Metrics.ONE_DAY)
+        path_model = "../src/models/saved_models/{}".format(ModelAttributes.RANDOM_FOREST.format(Metrics.ONE_DAY))
+        path_metrics = "../src/models/model_metrics/{}".format(
+            ModelAttributes.RANDOM_FOREST.format(Metrics.ONE_DAY + ".csv"))
+        self.assertTrue(os.path.isfile(path_model))
+        self.assertTrue(os.path.isfile(path_metrics))
+        os.remove(path_model)
+        os.remove(path_metrics)
+        return
+
     def test_svm_model(self):
         svm_model(test_data, x_col=x_col, y_col=y_col, interval=Metrics.ONE_DAY)
         path_model = "../src/models/saved_models/{}".format(ModelAttributes.SVM.format(Metrics.ONE_DAY))
