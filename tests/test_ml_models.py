@@ -65,6 +65,11 @@ class Test(TestCase):
 
     def test_model_metrics(self):
         model_metrics(y_actual, y_pred, "test_model")
+        path_metrics = "../src/models/model_metrics/{}".format(
+            "test_model.csv")
+        self.assertTrue(os.path.isfile(path_metrics))
+        os.remove(path_metrics)
+
 
     def test_save_model(self):
         self.fail()
