@@ -1,5 +1,6 @@
 import pickle
 import pandas as pd
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
@@ -7,7 +8,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_sc
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
-from keras.optimizers import Adam
+from keras.models import model_from_json
 import os
 
 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
@@ -71,17 +72,17 @@ def neural_net_model(data, x_col, y_col, interval):
     model.add(Dense(12, activation='relu'))
     model.add(Dropout(0.2))
     model.add(Dense(24, activation='relu'))
-    model.add(Dense(1))
+    model.add(Dense(1, activation='sigmoid'))
 
     model.summary()
-    opt = Adam(learning_rate=0.0001)
-    model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['acc'])
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
     # fit the keras model on the dataset
     history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50, batch_size=12)
 
     model_name = ModelAttributes.NEURAL_NETWORK.format(interval)
     evaluate_model(model, X_test, y_test, model_name)
-    save_model(model, model_name, ModelAttributes.MODEL_LOCATION + ".pkl")
+    # Saving the model requires to generate json first. keras does not work directly with pickle
+    save_model(model.to_json(), model_name, ModelAttributes.MODEL_LOCATION)
     return
 
 
@@ -94,6 +95,7 @@ def separate_data(data, x_col, y_col):
 
 def evaluate_model(model, X_test, y_test, model_name):
     y_pred = model.predict(X_test)
+    y_pred = np.where(y_pred > 0.5, 1, 0)
     model_metrics(actual=y_test, prediction=y_pred, model_name=model_name)
 
 
