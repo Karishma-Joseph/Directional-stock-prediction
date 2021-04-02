@@ -48,7 +48,7 @@ def decision_tree_model(data, x_col, y_col, interval):
 def svm_model(data, x_col, y_col, interval):
     X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
-    svm = SVC(kernel='linear')  # kernal might need to be changed
+    svm = SVC(kernel='linear')  # kernel might need to be changed
     svm.fit(X_train, y_train)
 
     model_name = ModelAttributes.SVM.format(interval)
@@ -81,11 +81,13 @@ def neural_net_model(data, x_col, y_col, interval):
     save_model(model, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
+
 def separate_data(data, x_col, y_col):
     X = data[[x_col]]
     y = data[y_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=ModelAttributes.TEST_SIZE)
     return X_train, X_test, y_train, y_test
+
 
 def evaluate_model(model, X_test, y_test, model_name):
     y_pred = model.predict(X_test)

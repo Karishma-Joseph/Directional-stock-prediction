@@ -5,7 +5,7 @@ from io import StringIO
 from datetime import datetime
 
 
-class metrics:
+class Metrics:
     SMA = '{}_sma_{}'
     EMA = '{}_ema_{}'
     INCREASE_DECREASE = '{}_increase_decrease'
@@ -35,34 +35,32 @@ class metrics:
     FIVE_DAY = "5d"
 
 
-
-
 def increase_decrease(data, col):
     data['temp'] = data[col].shift(-1)
-    data[metrics.INCREASE_DECREASE.format(col)] = data.apply(lambda x: 1 if x['temp'] - x[col] > 0 else 0, axis=1)
+    data[Metrics.INCREASE_DECREASE.format(col)] = data.apply(lambda x: 1 if x['temp'] - x[col] > 0 else 0, axis=1)
     data = data.drop(columns=['temp'])
     return data
 
 
 def column_derivative_metric(col, data):
-    data[metrics.DERIVATIVE.format(col)] = data[col].diff()
+    data[Metrics.DERIVATIVE.format(col)] = data[col].diff()
     return data
 
 
 def distance_metric(data, col1, col2):
-    data[metrics.DISTANCE.format(col1, col2)] = (data[col1] - data[col2]) / data[col2]
+    data[Metrics.DISTANCE.format(col1, col2)] = (data[col1] - data[col2]) / data[col2]
     return data
 
 
 def rsi_metric(data, window=14):
     # 1: Compute price movement each period
     # 2: Compute average gain/loss over last 14 days
-    gain = pd.DataFrame(data[metrics.CLOSE_PRICE].rolling(2).apply(lambda x: x.iloc[1] - x.iloc[0]))
+    gain = pd.DataFrame(data[Metrics.CLOSE_PRICE].rolling(2).apply(lambda x: x.iloc[1] - x.iloc[0]))
     gain[gain < 0] = np.nan
     gain = gain.rolling(window=window, min_periods=1).mean()
     gain = gain.fillna(0)
 
-    loss = pd.DataFrame(data[metrics.CLOSE_PRICE].rolling(2).apply(lambda x: x.iloc[1] - x.iloc[0]))
+    loss = pd.DataFrame(data[Metrics.CLOSE_PRICE].rolling(2).apply(lambda x: x.iloc[1] - x.iloc[0]))
     loss[loss > 0] = np.nan
     loss = loss.abs()
     loss = loss.rolling(window=window, center=True, min_periods=1).mean()
@@ -70,53 +68,53 @@ def rsi_metric(data, window=14):
     # 3: Calculate RS and RSI
     relative_strength = gain / loss
     relative_strength_index = 100 - 100 / (1 + relative_strength)
-    data[metrics.RSI] = relative_strength_index
+    data[Metrics.RSI] = relative_strength_index
     return data
 
 
 def macd_metric(data):
     # 12 period exponential moving average
-    EMA_12_day = data[metrics.CLOSE_PRICE].ewm(span=12, adjust=False).mean()
+    EMA_12_day = data[Metrics.CLOSE_PRICE].ewm(span=12, adjust=False).mean()
     # 26 period exponential moving average
-    EMA_26_day = data[metrics.CLOSE_PRICE].ewm(span=26, adjust=False).mean()
-    data[metrics.MACD] = EMA_26_day - EMA_12_day
+    EMA_26_day = data[Metrics.CLOSE_PRICE].ewm(span=26, adjust=False).mean()
+    data[Metrics.MACD] = EMA_26_day - EMA_12_day
 
     # 9 period exponential moving average
-    data[metrics.MACD_SIGNAL] = data[metrics.MACD].ewm(span=9, adjust=False).mean()
-    data[metrics.MACD_DECISION] = data[metrics.MACD] - data[metrics.MACD_SIGNAL]
-    data = data.drop(columns=[metrics.MACD_SIGNAL, metrics.MACD])
+    data[Metrics.MACD_SIGNAL] = data[Metrics.MACD].ewm(span=9, adjust=False).mean()
+    data[Metrics.MACD_DECISION] = data[Metrics.MACD] - data[Metrics.MACD_SIGNAL]
+    data = data.drop(columns=[Metrics.MACD_SIGNAL, Metrics.MACD])
     return data
 
 
 def on_balance_volume(data, span=12):
     # OBV = Previous OBV + Current Trading Volume
-    data[metrics.OBV] = np.where(data[metrics.CLOSE_PRICE] > data[metrics.CLOSE_PRICE].shift(1), data[metrics.VOLUME],
-                                 np.where(data[metrics.CLOSE_PRICE] < data[metrics.CLOSE_PRICE].shift(1),
-                                          -data[metrics.VOLUME], 0)).cumsum()
+    data[Metrics.OBV] = np.where(data[Metrics.CLOSE_PRICE] > data[Metrics.CLOSE_PRICE].shift(1), data[Metrics.VOLUME],
+                                 np.where(data[Metrics.CLOSE_PRICE] < data[Metrics.CLOSE_PRICE].shift(1),
+                                          -data[Metrics.VOLUME], 0)).cumsum()
     # data = exponential_moving_average(data, metrics.OBV, span=span)
     # data = column_derivative_metric(metrics.EMA.format(metrics.OBV, span), data)
     return data
 
 
 def simple_moving_average(data, col, window):
-    data[metrics.SMA.format(col, window)] = data[col].rolling(window=window).mean()
+    data[Metrics.SMA.format(col, window)] = data[col].rolling(window=window).mean()
     return data
 
 
 def exponential_moving_average(data, col, span):
-    data[metrics.EMA.format(col, span)] = data[col].ewm(span=span, adjust=False).mean()
+    data[Metrics.EMA.format(col, span)] = data[col].ewm(span=span, adjust=False).mean()
     return data
 
 
 def ema_trend_indicator(data, ema_span):
     # Required Column Names
-    col_ema_name = metrics.EMA.format(metrics.CLOSE_PRICE, ema_span)
-    col_derivative = metrics.DERIVATIVE.format(col_ema_name)
-    col_distance = metrics.DISTANCE.format(col_ema_name, col_derivative)
-    col_crossover_count = metrics.CROSSOVER_COUNT.format(col_ema_name)
-    col_ema_slope_classification = metrics.CLASSIFICATION.format(col_ema_name)
+    col_ema_name = Metrics.EMA.format(Metrics.CLOSE_PRICE, ema_span)
+    col_derivative = Metrics.DERIVATIVE.format(col_ema_name)
+    col_distance = Metrics.DISTANCE.format(col_ema_name, col_derivative)
+    col_crossover_count = Metrics.CROSSOVER_COUNT.format(col_ema_name)
+    col_ema_slope_classification = Metrics.CLASSIFICATION.format(col_ema_name)
 
-    data[col_distance] = (data[metrics.CLOSE_PRICE] - data[col_ema_name]) / data[col_ema_name]
+    data[col_distance] = (data[Metrics.CLOSE_PRICE] - data[col_ema_name]) / data[col_ema_name]
     data[col_derivative] = data[col_ema_name].diff()
     data[col_crossover_count] = np.nan
 
@@ -160,7 +158,7 @@ def eps(data, ticker, company_name, period):
             eps_table = pd.read_csv(table_data, sep=' ', header=None, index_col=0)
             eps_table.index = pd.to_datetime(eps_table.index)
     eps_table = pd.DataFrame(eps_table[eps_table.columns[0]].replace('[\$,]', '', regex=True).astype('float'))
-    data = insert_data(data, eps_table, metrics.EPS)
+    data = insert_data(data, eps_table, Metrics.EPS)
     browser.close()
     return data
 
@@ -180,7 +178,7 @@ def revenue(data, ticker, company_name, period):
             revenue_table = pd.read_csv(table_data, sep=' ', header=None, index_col=0)
             revenue_table.index = pd.to_datetime(revenue_table.index)
     revenue_table = pd.DataFrame(revenue_table[revenue_table.columns[0]].replace('[\$,]', '', regex=True).astype('int'))
-    data = insert_data(data, revenue_table, metrics.REVENUE)
+    data = insert_data(data, revenue_table, Metrics.REVENUE)
     browser.close()
     return data
 
@@ -196,7 +194,7 @@ def pe_ratio(data, ticker, company_name):
         pe_ratio_table = pd.read_csv(table_data, sep=' ', header=None, index_col=0)
         pe_ratio_table.drop(pe_ratio_table.iloc[:, 1:3], inplace=True, axis=1)
         pe_ratio_table.index = pd.to_datetime(pe_ratio_table.index)
-        data = insert_data(data, pe_ratio_table, metrics.PE)
+        data = insert_data(data, pe_ratio_table, Metrics.PE)
     browser.close()
     return data
 
@@ -209,11 +207,11 @@ def debt_to_equity_ratio(data, ticker, company_name):
     title = table.text.split('\n', 1)
     table_data = StringIO(table.text.split('\n', 2)[-1])
     if title[0].lower().find("debt/equity") != -1:
-        debt_to_equity_table = pd.read_csv(table_data,  sep=' ', header=None, index_col=0)
+        debt_to_equity_table = pd.read_csv(table_data, sep=' ', header=None, index_col=0)
         debt_to_equity_table.drop(debt_to_equity_table.iloc[:, 0:2], inplace=True, axis=1)
         debt_to_equity_table.index = pd.to_datetime(debt_to_equity_table.index)
         debt_to_equity_table.index = pd.to_datetime(debt_to_equity_table.index)
-        data = insert_data(data, debt_to_equity_table, metrics.DEBT_EQUITY)
+        data = insert_data(data, debt_to_equity_table, Metrics.DEBT_EQUITY)
     browser.close()
     return data
 
@@ -229,7 +227,7 @@ def price_to_book_ratio(data, ticker, company_name):
         price_to_book_table = pd.read_csv(table_data, sep=' ', header=None, index_col=0)
         price_to_book_table.drop(price_to_book_table.iloc[:, 0:2], inplace=True, axis=1)
         price_to_book_table.index = pd.to_datetime(price_to_book_table.index)
-        data = insert_data(data, price_to_book_table, metrics.PRICE_TO_BOOK)
+        data = insert_data(data, price_to_book_table, Metrics.PRICE_TO_BOOK)
     browser.close()
     return data
 
