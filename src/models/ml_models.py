@@ -10,31 +10,33 @@ from keras.layers import Dense, Dropout, LSTM
 from keras.optimizers import Adam
 
 
-
-class model_name:
-    LOGISTIC_REGRESSION = "logistic_regression"
-    NEURAL_NETWORK = "neural_network"
-    SVM = "svm"
-    DECISTION_TREE = "decision_tree"
+class model_attributes:
+    LOGISTIC_REGRESSION = "logistic_regression_{}"
+    NEURAL_NETWORK = "neural_network_{}"
+    SVM = "svm_{}"
+    DECISTION_TREE = "decision_tree_{}"
+    MODEL_LOCATION = "/saved_models/{}"
 
 
 # Logistic Regression
-def logistic_regression_model(data, x_col, y_col):
+def logistic_regression_model(data, x_col, y_col, interval):
     # Required Column Names
     X = data[[x_col]]
     y = data[y_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
 
-    lr_model = LogisticRegression().fit(X_train, y_train)
-    r_sq = lr_model.score(X_train, y_train)
+    lr = LogisticRegression().fit(X_train, y_train)
+    r_sq = lr.score(X_train, y_train)
 
-    predictions = lr_model.predict(X_test)
+    predictions = lr.predict(X_test)
     mse = mean_squared_error(y_test, predictions)
     r2 = r2_score(y_test, predictions)
-    pickle.dump(lr_model, open(model_name.LOGISTIC_REGRESSION, 'wb'))
+    model_name = model_attributes.LOGISTIC_REGRESSION.format(interval)
+    save_model(lr, model_name, model_attributes.MODEL_LOCATION)
     return
 
-def decision_tree_model(data, x_col, y_col):
+
+def decision_tree_model(data, x_col, y_col, interval):
     X = data[[x_col]]
     y = data[y_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
@@ -47,10 +49,12 @@ def decision_tree_model(data, x_col, y_col):
 
     # Predict the response for test dataset
     y_pred = decision_tree.predict(X_test)
-    pickle.dump(decision_tree, open(model_name.LOGISTIC_REGRESSION, 'wb'))
+    model_name = model_attributes.DECISTION_TREE.format(interval)
+    save_model(decision_tree, model_name, model_attributes.MODEL_LOCATION)
     return
 
-def svm_model(data, x_col, y_col):
+
+def svm_model(data, x_col, y_col, interval):
     X = data[[x_col]]
     y = data[y_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
@@ -63,10 +67,12 @@ def svm_model(data, x_col, y_col):
 
     # Predict the response for test dataset
     y_pred = svm.predict(X_test)
-    pickle.dump(svm, open(model_name.SVM, 'wb'))
+    model_name = model_attributes.SVM.format(interval)
+    save_model(svm, model_name, model_attributes.MODEL_LOCATION)
     return
 
-def neural_net_model(data, x_col, y_col):
+
+def neural_net_model(data, x_col, y_col, interval):
     X = data[[x_col]]
     y = data[y_col]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33)
@@ -86,5 +92,11 @@ def neural_net_model(data, x_col, y_col):
     model.compile(loss='binary_crossentropy', optimizer=opt, metrics=['acc'])
     # fit the keras model on the dataset
     history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50, batch_size=12)
-    pickle.dump(model, open(model_name.NEURAL_NETWORK_NAME, 'wb'))
+    model_name = model_attributes.NEURAL_NETWORK.format(interval)
+    save_model(model, model_name, model_attributes.MODEL_LOCATION)
+    return
+
+
+def save_model(model, model_name, location):
+    pickle.dump(model, open(location.format(model_name), 'wb'))
     return

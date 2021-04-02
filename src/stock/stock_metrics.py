@@ -26,6 +26,14 @@ class metrics:
     PE = "pe_ratio"
     DEBT_EQUITY = "debt_to_equity"
     SPAN = 50
+    ONE_MIN = "1m"
+    FIVE_MIN = "5m"
+    FIFTEEN_MIN = "15m"
+    THIRTY_MIN = "30m"
+    ONE_HOUR = "1h"
+    ONE_DAY = "1d"
+    FIVE_DAY = "5d"
+
 
 
 
