@@ -33,6 +33,7 @@ class Metrics:
     ONE_HOUR = "1h"
     ONE_DAY = "1d"
     FIVE_DAY = "5d"
+    SENTIMENT_SCORE = "Score"
 
 
 def increase_decrease(data, col):
@@ -213,7 +214,8 @@ def debt_to_equity_ratio(data, ticker, company_name):
         debt_to_equity_table.index = pd.to_datetime(debt_to_equity_table.index)
         data = insert_datintervals = [Metrics.ONE_DAY, Metrics.ONE_MIN]
     for interval in intervals:
-        apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date='2018-01-01', end_date='2018-2-31', interval=interval)
+        apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date='2018-01-01', end_date='2018-2-31',
+                            interval=interval)
         apple_stock.generate_metrics()
         apple_stock.save_data()
         # amazon_stock = Stock(ticker_symbol='amzn', company_name="amazon", start_date='2018-01-01', end_date='2018-2-31')
@@ -242,14 +244,23 @@ def price_to_book_ratio(data, ticker, company_name):
 # Semantic News Features
 def semantic_news_features(data):
     # read data from /news_data/...
+    path = "data/news_data/news_final.csv"
+    news_df = pd.read_csv(path)
+    news_df['Date'] = pd.to_datetime(news_df['Date'])
+    news_df = news_df.set_index('Date')
+
     # insert data into dataframe
+    data = insert_data(data, news_df, Metrics.SENTIMENT_SCORE)
+
     return data
+
 
 # Semantic News Features
 def semantic_twitter_features(data):
     # read data from /twitter_data/...
     # insert data into dataframe
     return data
+
 
 # Function inserts data according to date. If dates match or is between date range, data is inserted
 # Fills in missing data in a forward fashion until next value occurs.
@@ -261,12 +272,15 @@ def insert_data(data, new_data, column_name):
     for new_data_index, row in new_data.iterrows():
         for data_index, data_row in data.iterrows():
             if new_data_index == data_index or (old_date < new_data_index < data_index):
-                data.at[data_index, column_name] = row
+                # new_data_index == data_index
+                data.at[data_index, column_name] = row[column_name]
                 break
             old_date = data_index
 
     min_data_index = data.index.tolist()[0]
     first_value = new_data[new_data.index < min_data_index].sort_index(ascending=False).iloc[0, 0]
+
     data = data.fillna(method='ffill')
     data = data.fillna(first_value)
     return data
+
