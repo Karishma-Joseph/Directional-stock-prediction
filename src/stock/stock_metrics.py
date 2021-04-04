@@ -272,7 +272,6 @@ def insert_data(data, new_data, column_name):
     for new_data_index, row in new_data.iterrows():
         for data_index, data_row in data.iterrows():
             if new_data_index == data_index or (old_date < new_data_index < data_index):
-                # new_data_index == data_index
                 data.at[data_index, column_name] = row[column_name]
                 break
             old_date = data_index
