@@ -258,7 +258,14 @@ def semantic_news_features(data):
 # Semantic News Features
 def semantic_twitter_features(data):
     # read data from /twitter_data/...
+    path = "data/twitter_data/twitter_final.csv"
+    twitter_df = pd.read_csv(path)
+    twitter_df['Date'] = pd.to_datetime(twitter_df['Date'])
+    twitter_df = twitter_df.set_index('Date')
+
     # insert data into dataframe
+    data = insert_data(data, twitter_df, Metrics.SENTIMENT_SCORE)
+
     return data
 
 
@@ -282,4 +289,3 @@ def insert_data(data, new_data, column_name):
     data = data.fillna(method='ffill')
     data = data.fillna(first_value)
     return data
-
