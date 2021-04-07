@@ -34,6 +34,7 @@ class Metrics:
     ONE_DAY = "1d"
     FIVE_DAY = "5d"
     SENTIMENT_SCORE = "Score"
+    FREQUENCY = "Frequency"
 
 
 def increase_decrease(data, col):
@@ -256,17 +257,19 @@ def semantic_news_features(data):
 
 
 # Semantic News Features
-def semantic_twitter_features(data):
+def semantic_twitter_features(data, interval):
     # read data from /twitter_data/...
-    path = "data/twitter_data/twitter_final.csv"
+    path = "data/twitter_data/twitter_" + interval + ".csv"
     twitter_df = pd.read_csv(path)
     twitter_df['Date'] = pd.to_datetime(twitter_df['Date'])
     twitter_df = twitter_df.set_index('Date')
 
     # insert data into dataframe
     data = insert_data(data, twitter_df, Metrics.SENTIMENT_SCORE)
+    data = insert_data(data, twitter_df, Metrics.FREQUENCY)
 
     return data
+
 
 
 # Function inserts data according to date. If dates match or is between date range, data is inserted
