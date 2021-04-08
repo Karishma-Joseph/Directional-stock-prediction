@@ -1,8 +1,9 @@
 from unittest import TestCase
-from models import *
-from stock import Metrics
 import pandas as pd
 import os
+from src.models import separate_data, logistic_regression_model, ModelAttributes, decision_tree_model, \
+    random_forest_model, svm_model, neural_net_model, model_metrics
+from src.stock import Metrics
 
 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 
