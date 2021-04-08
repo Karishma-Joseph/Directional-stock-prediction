@@ -42,10 +42,12 @@ class Stock:
 
         # Semantic News Features
         # Match the times and insert semantic news features
-        # self.data = semantic_news_features(data=self.data)
-        #
+
+        self.data = semantic_news_features(data=self.data, interval=self.interval)
+
         # Semantic Twitter Features
-        # self.data = semantic_twitter_features(data=self.data)
+        self.data = semantic_twitter_features(data=self.data)
+
         return
 
     def save_data(self, semantic):
@@ -54,8 +56,6 @@ class Stock:
         else:
             file_name = "data/training_data/{}_{}_{}_{}.csv".format(self.ticker_symbol, self.interval, self.start_date, self.end_date)
         self.data.to_csv(file_name)
-
-
 
 
 
