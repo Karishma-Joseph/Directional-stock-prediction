@@ -7,8 +7,17 @@ from src.stock import Metrics
 
 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 
-test_data = pd.read_csv("../src/data/test_data/aapl_1440_2017-01-01_2019-02-01.csv")
-x_col = [Metrics.RSI, Metrics.MACD_DECISION, Metrics.OBV]
+# test_data = pd.read_csv("../src/data/test_data/aapl_1440_2017-01-01_2019-02-01.csv")
+test_data = pd.read_csv("../src/data/training_data/aapl_5_2017-07-12_2019-02-01.csv")
+
+
+col_ema_name = Metrics.EMA.format(Metrics.CLOSE_PRICE, Metrics.SPAN)
+col_derivative = Metrics.DERIVATIVE.format(col_ema_name)
+col_distance = Metrics.DISTANCE.format(col_ema_name, col_derivative)
+crossover_count = Metrics.CROSSOVER_COUNT.format(Metrics.EMA.format(Metrics.CLOSE_PRICE, Metrics.SPAN))
+
+x_col = x_col = [Metrics.RSI, Metrics.MACD_DECISION, Metrics.OBV, col_derivative, col_distance,
+             crossover_count, Metrics.EPS, Metrics.REVENUE, Metrics.PE, Metrics.DEBT_EQUITY, Metrics.PRICE_TO_BOOK]
 y_col = [Metrics.INCREASE_DECREASE.format(Metrics.CLOSE_PRICE)]
 
 y_pred = [0, 1, 1, 0, 1, 0]
@@ -37,7 +46,10 @@ class Test(TestCase):
         return
 
     def test_random_forest_model(self):
-        random_forest_model(test_data, x_col=x_col, y_col=y_col, interval=Metrics.ONE_DAY)
+        model_type = ModelAttributes.EMA_CLASSIFICATION.format("apple" + "_" + str(Metrics.FIVE_MIN))
+
+        random_forest_model(test_data, x_col=x_col, y_col=y_col, model_type=model_type)
+
         path_model = "../src/models/saved_models/{}".format(ModelAttributes.RANDOM_FOREST.format(Metrics.ONE_DAY))
         path_metrics = "../src/models/model_metrics/{}".format(
             ModelAttributes.RANDOM_FOREST.format(Metrics.ONE_DAY + ".csv"))

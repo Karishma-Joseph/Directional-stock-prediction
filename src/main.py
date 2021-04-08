@@ -50,5 +50,5 @@ def generate_all_data():
 
 
 if __name__ == '__main__':
-    generate_all_data()
-    # generate_all_models()
+    # generate_all_data()
+    generate_all_models()

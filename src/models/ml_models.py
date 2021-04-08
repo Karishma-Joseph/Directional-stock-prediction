@@ -11,6 +11,8 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import model_from_json
+import matplotlib.pyplot as plt
+
 import os
 
 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
@@ -64,7 +66,7 @@ def random_forest_model(data, x_col, y_col, model_type):
 
     random_forest = RandomForestClassifier(max_depth=3, random_state=0, n_estimators=500)
     random_forest = random_forest.fit(X_train, y_train)
-
+    random_forest_feature_importance(random_forest, x_col)
     model_name = ModelAttributes.RANDOM_FOREST.format(model_type)
     evaluate_model(random_forest, X_test, y_test, model_name)
     save_model(random_forest, model_name, ModelAttributes.MODEL_LOCATION)
@@ -134,6 +136,17 @@ def model_metrics(actual, prediction, model_name):
     metrics_df.to_csv(ModelAttributes.MODEL_METRICS_LOCATION.format(model_name) + ".csv")
     return
 
+def random_forest_feature_importance(model, x_col):
+    # plotting feature importances
+    features = x_col
+    importances = model.feature_importances_
+    indices = np.argsort(importances)
+    plt.figure(figsize=(10, 15))
+    plt.title('Feature Importances')
+    plt.barh(range(len(indices)), importances[indices], color='b', align='center')
+    plt.yticks(range(len(indices)), [features[i] for i in indices])
+    plt.xlabel('Relative Importance')
+    plt.show()
 
 def save_model(model, model_name, location):
     file = open(location.format(model_name), 'wb')
