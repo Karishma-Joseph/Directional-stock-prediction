@@ -3,6 +3,13 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="C:\Users\Kingsley Besidonne\Documents\graduateSchool\Semester1\DataMining\assignment3 (1).py">
+          <value>
+            <Attribute>
+              <option name="separator" value=":" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\aapl_1d_2018-01-01_2018-2-31.csv">
           <value>
             <Attribute>
@@ -11,6 +18,13 @@
           </value>
         </entry>
         <entry key="\src\data\aapl_1d_2018-01-01_2018-2-31.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\src\main.py">
           <value>
             <Attribute>
               <option name="separator" value="," />

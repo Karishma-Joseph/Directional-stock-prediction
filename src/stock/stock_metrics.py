@@ -34,6 +34,7 @@ class Metrics:
     ONE_DAY = "1d"
     FIVE_DAY = "5d"
     SENTIMENT_SCORE = "Score"
+    NEWS_SENTIMENT_SCORE = "Sentiment score"
     FREQUENCY = "Frequency"
 
 
@@ -243,15 +244,15 @@ def price_to_book_ratio(data, ticker, company_name):
 
 
 # Semantic News Features
-def semantic_news_features(data):
+def semantic_news_features(data, interval):
     # read data from /news_data/...
-    path = "data/news_data/news_final.csv"
+    path = "data/news_data/news_" + interval + ".csv"
     news_df = pd.read_csv(path)
     news_df['Date'] = pd.to_datetime(news_df['Date'])
     news_df = news_df.set_index('Date')
 
     # insert data into dataframe
-    data = insert_data(data, news_df, Metrics.SENTIMENT_SCORE)
+    data = insert_data(data, news_df, Metrics.NEWS_SENTIMENT_SCORE)
 
     return data
 

@@ -36,10 +36,11 @@ class Stock:
 
         # Semantic News Features
         # Match the times and insert semantic news features
-        self.data = semantic_news_features(data=self.data)
+        self.data = semantic_news_features(data=self.data, interval=self.interval)
 
         # Semantic Twitter Features
-        self.data = semantic_twitter_features(data=self.data)
+        #self.data = semantic_twitter_features(data=self.data)
+
         return
 
     def save_data(self):
