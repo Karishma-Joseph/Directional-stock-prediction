@@ -30,18 +30,19 @@ def generate_all_models():
 
 def generate_all_data():
     start_dates_amazon = ['2017-11-09', '2017-09-25', '2017-05-12', '2017-03-13', '2015-11-27', '2014-09-29']
-    start_dates_apple = ['2017-11-09', '2017-09-25', '2017-05-12', '2017-03-13', '2015-11-27', '2014-09-29']
-
+    start_dates_apple = ['2017-07-12', '2016-12-22', '2016-08-23', '2016-03-16', '2014-06-30', '2014-06-30']
+    end_date = '2019-02-01'
     for interval, amazon_data, apple_date in zip(intervals, start_dates_amazon, start_dates_apple):
-        apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date=apple_date, end_date='2019-02-01',
-                            interval=Metrics.FIFTEEN_MIN)
+        apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date=apple_date, end_date=end_date,
+                            interval=interval)
         apple_stock.generate_metrics()
         apple_stock.save_data(semantic=False)
-        amazon_stock = Stock(ticker_symbol='amzn', company_name="amazon", start_date=amazon_data, end_date='2019-02-01')
+        amazon_stock = Stock(ticker_symbol='amzn', company_name="amazon", start_date=amazon_data, end_date=end_date,
+                             interval=interval)
         amazon_stock.generate_metrics()
-        amazon_stock.save_data()
+        amazon_stock.save_data(semantic=False)
 
 
 if __name__ == '__main__':
     generate_all_data()
-    generate_all_models()
+    # generate_all_models()
