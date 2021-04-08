@@ -24,58 +24,66 @@ class ModelAttributes:
     RANDOM_FOREST = "random_forest_{}"
     MODEL_LOCATION = script_dir + "/saved_models/{}"
     MODEL_METRICS_LOCATION = script_dir + "/model_metrics/{}"
+    EMA_CLASSIFICATION = "ema_classification_{}"
+    INCREASE_DECREASE_CLASSIFICATION = "increase_decrease_classification_{}"
     TEST_SIZE = 0.33
 
 
+def generate_models(data, x_col, y_col, model_type):
+    logistic_regression_model(data, x_col, y_col, model_type)
+    decision_tree_model(data, x_col, y_col, model_type)
+    random_forest_model(data, x_col, y_col, model_type)
+    return
+
+
 # Logistic Regression
-def logistic_regression_model(data, x_col, y_col, interval):
+def logistic_regression_model(data, x_col, y_col, model_type):
     X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
     lr = LogisticRegression()
     lr = lr.fit(X_train, y_train)
-
-    model_name = ModelAttributes.LOGISTIC_REGRESSION.format(interval)
+    model_name = ModelAttributes.LOGISTIC_REGRESSION.format(model_type)
     evaluate_model(lr, X_test, y_test, model_name)
     save_model(lr, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
 
-def decision_tree_model(data, x_col, y_col, interval):
+def decision_tree_model(data, x_col, y_col, model_type):
     X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
     decision_tree = DecisionTreeClassifier()
     decision_tree = decision_tree.fit(X_train, y_train)
 
-    model_name = ModelAttributes.DECISTION_TREE.format(interval)
+    model_name = ModelAttributes.DECISTION_TREE.format(model_type)
     evaluate_model(decision_tree, X_test, y_test, model_name)
     save_model(decision_tree, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
-def random_forest_model(data, x_col, y_col, interval):
+def random_forest_model(data, x_col, y_col, model_type):
     X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
     random_forest = RandomForestClassifier(max_depth=3, random_state=0, n_estimators=500)
     random_forest = random_forest.fit(X_train, y_train)
 
-    model_name = ModelAttributes.RANDOM_FOREST.format(interval)
-    evaluate_model(decision_tree, X_test, y_test, model_name)
-    save_model(decision_tree, model_name, ModelAttributes.MODEL_LOCATION)
+    model_name = ModelAttributes.RANDOM_FOREST.format(model_type)
+    evaluate_model(random_forest, X_test, y_test, model_name)
+    save_model(random_forest, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
 
-def svm_model(data, x_col, y_col, interval):
+def svm_model(data, x_col, y_col, model_type):
     X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
     svm = SVC(kernel='linear')  # kernel might need to be changed
     svm.fit(X_train, y_train)
 
-    model_name = ModelAttributes.SVM.format(interval)
+    model_name = ModelAttributes.SVM.format(model_type)
     evaluate_model(svm, X_test, y_test, model_name)
     save_model(svm, model_name, ModelAttributes.MODEL_LOCATION)
     return
 
 
-def neural_net_model(data, x_col, y_col, interval):
+def neural_net_model(data, x_col, y_col, model_type):
     X_train, X_test, y_train, y_test = separate_data(data, x_col, y_col)
 
     # Create a model with keras
@@ -93,7 +101,7 @@ def neural_net_model(data, x_col, y_col, interval):
     # fit the keras model on the dataset
     history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50, batch_size=12)
 
-    model_name = ModelAttributes.NEURAL_NETWORK.format(interval)
+    model_name = ModelAttributes.NEURAL_NETWORK.format(model_type)
     evaluate_model(model, X_test, y_test, model_name)
     # Saving the model requires to generate json first. keras does not work directly with pickle
     save_model(model.to_json(), model_name, ModelAttributes.MODEL_LOCATION)
@@ -103,6 +111,7 @@ def neural_net_model(data, x_col, y_col, interval):
 def separate_data(data, x_col, y_col):
     X = data[x_col]
     y = data[y_col]
+    X = MinMaxScaler().fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=ModelAttributes.TEST_SIZE)
     return X_train, X_test, y_train, y_test
 

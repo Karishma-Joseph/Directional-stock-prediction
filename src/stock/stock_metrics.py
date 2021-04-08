@@ -27,13 +27,14 @@ class Metrics:
     DEBT_EQUITY = "debt_to_equity"
     SPAN = 50
     ONE_MIN = "1m"
-    FIVE_MIN = "5m"
-    FIFTEEN_MIN = "15m"
-    THIRTY_MIN = "30m"
-    ONE_HOUR = "1h"
-    ONE_DAY = "1d"
-    FIVE_DAY = "5d"
+    FIVE_MIN = 5
+    FIFTEEN_MIN = 15
+    THIRTY_MIN = 30
+    ONE_HOUR = 60
+    FOUR_HOUR = 240
+    ONE_DAY = 1440
     SENTIMENT_SCORE = "Score"
+    NEWS_SENTIMENT_SCORE = "Sentiment score"
     FREQUENCY = "Frequency"
 
 
@@ -140,7 +141,7 @@ def ema_trend_indicator(data, ema_span):
     data['temp'] = data[col_derivative].shift(-1)
     data[col_ema_slope_classification] = data.apply(lambda x: 1 if x['temp'] > 0 else 0, axis=1)
     data = data.dropna()
-    data = data.drop(columns=['temp', col_distance, col_derivative, col_ema_name])
+    data = data.drop(columns=['temp', col_ema_name])
 
     return data
 
@@ -213,15 +214,7 @@ def debt_to_equity_ratio(data, ticker, company_name):
         debt_to_equity_table.drop(debt_to_equity_table.iloc[:, 0:2], inplace=True, axis=1)
         debt_to_equity_table.index = pd.to_datetime(debt_to_equity_table.index)
         debt_to_equity_table.index = pd.to_datetime(debt_to_equity_table.index)
-        data = insert_datintervals = [Metrics.ONE_DAY, Metrics.ONE_MIN]
-    for interval in intervals:
-        apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date='2018-01-01', end_date='2018-2-31',
-                            interval=interval)
-        apple_stock.generate_metrics()
-        apple_stock.save_data()
-        # amazon_stock = Stock(ticker_symbol='amzn', company_name="amazon", start_date='2018-01-01', end_date='2018-2-31')
-        # amazon_stock.generate_metrics()
-        # amazon_stock.save_data()a(data, debt_to_equity_table, Metrics.DEBT_EQUITY)
+        data = insert_data(data, debt_to_equity_table, Metrics.DEBT_EQUITY)
     browser.close()
     return data
 
@@ -243,15 +236,15 @@ def price_to_book_ratio(data, ticker, company_name):
 
 
 # Semantic News Features
-def semantic_news_features(data):
+def semantic_news_features(data, interval):
     # read data from /news_data/...
-    path = "data/news_data/news_final.csv"
+    path = "data/news_data/news_" + interval + ".csv"
     news_df = pd.read_csv(path)
     news_df['Date'] = pd.to_datetime(news_df['Date'])
     news_df = news_df.set_index('Date')
 
     # insert data into dataframe
-    data = insert_data(data, news_df, Metrics.SENTIMENT_SCORE)
+    data = insert_data(data, news_df, Metrics.NEWS_SENTIMENT_SCORE)
 
     return data
 
@@ -271,24 +264,42 @@ def semantic_twitter_features(data, interval):
     return data
 
 
-
 # Function inserts data according to date. If dates match or is between date range, data is inserted
 # Fills in missing data in a forward fashion until next value occurs.
 # Can be used with sentiment features as well
-def insert_data(data, new_data, column_name):
-    # create empty new column
+#################3### NOTE: This function amy not work with semantic features ##########################
+# For simplicity sake, if data does not insert correctly, copy the function and make one for inserting just twitter data
+# and news data features.
+def insert_data(data, new_feature_data, column_name):
+    # Make sure data is sorted the same direction
+    data = data.sort_index(ascending=True)
+    new_feature_data = new_feature_data.sort_index(ascending=True)
+
+    # This is the problem area. This trims the new_feature_data to match the date range of the stock prices.
+    # Example: if stock data dates are between 2020-01-01 < date < 2020-12-31, then the new data is trimmed into that range
+    # so that the algorithm runs faster. I noticed some twitter/news .csv file date ranges are smaller than the stock data. This may
+    # cause an error. It should be reversed so that the stock data is trimmed to fit with the twitter/news data.
+    new_data = new_feature_data.loc[data.index[0]:data.index[-1]]
+
+    # Create new column with na values
     data[column_name] = np.nan
-    old_date = new_data.index.tolist()[0]
+
+    # Runs in O(n). Looks for values between indices. Inserts these values in main data frame
+    old_index = 0
+    old_date = data.index.tolist()[0]
     for new_data_index, row in new_data.iterrows():
-        for data_index, data_row in data.iterrows():
+        for data_index, data_row in data.iloc[old_index:].iterrows():
             if new_data_index == data_index or (old_date < new_data_index < data_index):
-                data.at[data_index, column_name] = row[column_name]
+                data.at[data_index, column_name] = row
+                old_date = data_index
+                old_index = data.index.get_loc(data_index)
                 break
-            old_date = data_index
-
-    min_data_index = data.index.tolist()[0]
-    first_value = new_data[new_data.index < min_data_index].sort_index(ascending=False).iloc[0, 0]
-
+    # Forward fill any values that are not the same
     data = data.fillna(method='ffill')
-    data = data.fillna(first_value)
+    # Forward fill will leave the first values as na. Fill in these values with the value from the next smallest date index
+    if new_feature_data.index[0] < data.index[0]:
+        first_value = new_feature_data[new_feature_data.index < data.index[0]].sort_index(ascending=False).iloc[0, 0]
+        data = data.fillna(first_value)
+    data = data.dropna()
+
     return data
