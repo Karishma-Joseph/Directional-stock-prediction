@@ -27,12 +27,12 @@ class Metrics:
     DEBT_EQUITY = "debt_to_equity"
     SPAN = 50
     ONE_MIN = "1m"
-    FIVE_MIN = "5m"
-    FIFTEEN_MIN = "15m"
-    THIRTY_MIN = "30m"
-    ONE_HOUR = "1h"
-    ONE_DAY = "1d"
-    FIVE_DAY = "5d"
+    FIVE_MIN = 5
+    FIFTEEN_MIN = 15
+    THIRTY_MIN = 30
+    ONE_HOUR = 60
+    FOUR_HOUR = 240
+    ONE_DAY = 1440
     SENTIMENT_SCORE = "Score"
     NEWS_SENTIMENT_SCORE = "Sentiment score"
     FREQUENCY = "Frequency"
@@ -214,15 +214,7 @@ def debt_to_equity_ratio(data, ticker, company_name):
         debt_to_equity_table.drop(debt_to_equity_table.iloc[:, 0:2], inplace=True, axis=1)
         debt_to_equity_table.index = pd.to_datetime(debt_to_equity_table.index)
         debt_to_equity_table.index = pd.to_datetime(debt_to_equity_table.index)
-        data = insert_datintervals = [Metrics.ONE_DAY, Metrics.ONE_MIN]
-    for interval in intervals:
-        apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date='2018-01-01', end_date='2018-2-31',
-                            interval=interval)
-        apple_stock.generate_metrics()
-        apple_stock.save_data()
-        # amazon_stock = Stock(ticker_symbol='amzn', company_name="amazon", start_date='2018-01-01', end_date='2018-2-31')
-        # amazon_stock.generate_metrics()
-        # amazon_stock.save_data()a(data, debt_to_equity_table, Metrics.DEBT_EQUITY)
+        data = insert_data(data, debt_to_equity_table, Metrics.DEBT_EQUITY)
     browser.close()
     return data
 
@@ -276,20 +268,31 @@ def semantic_twitter_features(data, interval):
 # Function inserts data according to date. If dates match or is between date range, data is inserted
 # Fills in missing data in a forward fashion until next value occurs.
 # Can be used with sentiment features as well
-def insert_data(data, new_data, column_name):
-    # create empty new column
+def insert_data(data, insert_data, column_name):
+    # Make sure data is sorted the same direction
+    data = data.sort_index(ascending=True)
+    insert_data = insert_data.sort_index(ascending=True)
+    new_data = insert_data.loc[data.index[0]:data.index[-1]]
+
+    # Create new column with na values
     data[column_name] = np.nan
-    old_date = new_data.index.tolist()[0]
+
+    # Runs in O(n). Looks for values between indices. Inserts these values in main data frame
+    old_index = 0
+    old_date = data.index.tolist()[0]
     for new_data_index, row in new_data.iterrows():
-        for data_index, data_row in data.iterrows():
+        for data_index, data_row in data.iloc[old_index:].iterrows():
             if new_data_index == data_index or (old_date < new_data_index < data_index):
-                data.at[data_index, column_name] = row[column_name]
+                data.at[data_index, column_name] = row
+                old_date = data_index
+                old_index = data.index.get_loc(data_index)
                 break
-            old_date = data_index
-
-    min_data_index = data.index.tolist()[0]
-    first_value = new_data[new_data.index < min_data_index].sort_index(ascending=False).iloc[0, 0]
-
+    # Forward fill any values that are not the same
     data = data.fillna(method='ffill')
-    data = data.fillna(first_value)
+    # Forward fill will leave the first values as na. Fill in these values with the value from the next smallest date index
+    if insert_data.index[0] < data.index[0]:
+        first_value = insert_data[insert_data.index < data.index[0]].sort_index(ascending=False).iloc[0, 0]
+        data = data.fillna(first_value)
+    data = data.dropna()
+
     return data
