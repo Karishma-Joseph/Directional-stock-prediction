@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Stock Prediction</title>
+    <link rel="stylesheet" href="user-interface.css" />
+    <script language="JavaScript">
+        let company = null;
+        function stock_prediction_function() {
+            document.getElementById("display").innerHTML = "";
+            if (document.getElementById("amzn").checked === true) {
+                company = "amzn";
+            }
+            if (document.getElementById("aapl").checked === true) {
+                company = "aapl"
+            }
+            var interval = document.getElementById("time").value;
+            // var interval_val = interval.value;
+            document.getElementById("display").innerHTML =
+                    `<img src="../visualizations/without_sentiment_${company}_${interval}.jpg" width='500' height='350'>`;
+            return false;
+        }
+
+        function reset_display() {
+            document.getElementById("display").innerHTML = "";
+            document.getElementById("apple").checked = false;
+            document.getElementById("amazon").checked = false;
+        }
+    </script>
+</head>
+
+<body>
+    <h1>DIRECTIONAL STOCK PREDICTION</h1>
+    <div class="container">
+        <br />
+        <b class="stocklabel">STOCK: </b>
+        <input type="radio" name="stock" id="amzn" />
+        <label for="amzn">Amazon</label>
+        <input type="radio" name="stock" id="aapl" />
+        <label for="aapl">Apple</label>
+        <br />
+        <br />
+<!--        <b>DURATION: </b>-->
+<!--        <label for="start" class="stockstartdate">Start Date:</label>-->
+<!--        <input type="datetime-local" id="start" name="stock-start" />-->
+<!--        <label for="end" class="stockdate">End Date:</label>-->
+<!--        <input type="datetime-local" id="end" name="stock-end" />-->
+<!--        <br />-->
+<!--        <br />-->
+        <b class="stocklabel">TIME INTERVAL: </b>
+        <select class="stockstartdate" required name="time" id="time">
+            <option value=""></option>
+
+            <!-- Time Interval Options -->
+            <option value="5" selected>5 min</option>
+            <option value="15" selected>15 min</option>
+            <option value="30" selected>30 min</option>
+            <option value="60" selected>1 hr</option>
+            <option value="240">4 hours</option>
+            <option value="1440">1 day</option>
+        </select>
+        <br />
+        <br />
+        <input type="submit" value="Submit" onclick="stock_prediction_function()" />
+        <input type="reset" onclick="reset_display()" class="stockstartdate" />
+        <p><span id="display"></span></p>
+    </div>
+</body>
+
+</html>

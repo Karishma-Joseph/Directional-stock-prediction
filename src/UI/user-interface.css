@@ -1,0 +1,74 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: "arial";
+    /* background-image: linear-gradient(to right, #ff5050, white); */
+
+}
+h1 {
+    text-align: center;
+    background-image: linear-gradient(to right, #292bd6 , white);
+    padding: 30px;
+    margin-bottom: 0%;
+    margin-top: 0%;
+    color: #ffffff;
+
+}
+input[type=text],
+select,
+textarea {
+    width: 30%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+}
+
+label {
+    padding: 12px 12px 12px 0;
+    display: inline-block;
+}
+
+input[type=submit] {
+    margin-left: 10%;
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    background-color: #AAF0D1;
+    color: black;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=reset] {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+    background-color: #E18AAA;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+input[type=reset]:hover {
+    background-color: dodgerblue;
+}
+
+.container {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 40%;
+}
+.stockdate {
+    margin-left: 1%;
+}
+.stockstartdate {
+    margin-left: 2%;
+}
