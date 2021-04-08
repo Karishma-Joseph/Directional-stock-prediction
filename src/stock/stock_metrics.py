@@ -264,15 +264,14 @@ def semantic_twitter_features(data, interval):
     return data
 
 
-
 # Function inserts data according to date. If dates match or is between date range, data is inserted
 # Fills in missing data in a forward fashion until next value occurs.
 # Can be used with sentiment features as well
-def insert_data(data, insert_data, column_name):
+def insert_data(data, new_feature_data, column_name):
     # Make sure data is sorted the same direction
     data = data.sort_index(ascending=True)
-    insert_data = insert_data.sort_index(ascending=True)
-    new_data = insert_data.loc[data.index[0]:data.index[-1]]
+    new_feature_data = new_feature_data.sort_index(ascending=True)
+    new_data = new_feature_data.loc[data.index[0]:data.index[-1]]
 
     # Create new column with na values
     data[column_name] = np.nan
@@ -290,8 +289,8 @@ def insert_data(data, insert_data, column_name):
     # Forward fill any values that are not the same
     data = data.fillna(method='ffill')
     # Forward fill will leave the first values as na. Fill in these values with the value from the next smallest date index
-    if insert_data.index[0] < data.index[0]:
-        first_value = insert_data[insert_data.index < data.index[0]].sort_index(ascending=False).iloc[0, 0]
+    if new_feature_data.index[0] < data.index[0]:
+        first_value = new_feature_data[new_feature_data.index < data.index[0]].sort_index(ascending=False).iloc[0, 0]
         data = data.fillna(first_value)
     data = data.dropna()
 

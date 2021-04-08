@@ -34,11 +34,11 @@ class Stock:
         self.data = increase_decrease(data=self.data, col=Metrics.CLOSE_PRICE)
 
         # Fundamental Indicators
-        self.data = revenue(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
-        self.data = eps(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
-        self.data = pe_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
-        self.data = debt_to_equity_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
-        self.data = price_to_book_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        # self.data = revenue(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
+        # self.data = eps(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
+        # self.data = pe_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        # self.data = debt_to_equity_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        # self.data = price_to_book_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
 
         if semantic:
             # Semantic News Features

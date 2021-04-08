@@ -38,14 +38,14 @@ def generate_all_data():
     for interval, amazon_data, apple_date in zip(intervals, start_dates_amazon, start_dates_apple):
         apple_stock = Stock(ticker_symbol='aapl', company_name="apple", start_date=apple_date, end_date=end_date,
                             interval=interval)
-        apple_stock.generate_metrics()
+        apple_stock.generate_metrics(semantic=False)
         apple_stock.save_data(semantic=False)
         amazon_stock = Stock(ticker_symbol='amzn', company_name="amazon", start_date=amazon_data, end_date=end_date,
                              interval=interval)
-        amazon_stock.generate_metrics()
+        amazon_stock.generate_metrics(semantic=False)
         amazon_stock.save_data(semantic=False)
 
 
 if __name__ == '__main__':
-    # generate_all_data()
-    generate_all_models()
+    generate_all_data()
+    # generate_all_models()
