@@ -24,7 +24,7 @@ class Stock:
         data = data.loc[start_date:end_date]
         return data
 
-    def generate_metrics(self):
+    def generate_metrics(self, semantic=False):
         # Technical Indicators
         self.data = rsi_metric(data=self.data)
         self.data = macd_metric(data=self.data)
@@ -40,14 +40,12 @@ class Stock:
         self.data = debt_to_equity_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
         self.data = price_to_book_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
 
-        # Semantic News Features
-        # Match the times and insert semantic news features
-
-        self.data = semantic_news_features(data=self.data, interval=self.interval)
-
-        # Semantic Twitter Features
-        self.data = semantic_twitter_features(data=self.data)
-
+        if semantic:
+            # Semantic News Features
+            # Match the times and insert semantic news features
+            self.data = semantic_news_features(data=self.data, interval=self.interval)
+            # Semantic Twitter Features
+            self.data = semantic_twitter_features(data=self.data)
         return
 
     def save_data(self, semantic):
