@@ -18,7 +18,8 @@ crossover_count = Metrics.CROSSOVER_COUNT.format(Metrics.EMA.format(Metrics.CLOS
 
 x_col = x_col = [Metrics.RSI, Metrics.MACD_DECISION, Metrics.OBV, col_derivative, col_distance,
              crossover_count, Metrics.EPS, Metrics.REVENUE, Metrics.PE, Metrics.DEBT_EQUITY, Metrics.PRICE_TO_BOOK]
-y_col = [Metrics.INCREASE_DECREASE.format(Metrics.CLOSE_PRICE)]
+# y_col = [Metrics.INCREASE_DECREASE.format(Metrics.CLOSE_PRICE)]
+y_col = ['Close_ema_50_classification']
 
 y_pred = [0, 1, 1, 0, 1, 0]
 y_actual = [0, 0, 1, 0, 0, 0]
