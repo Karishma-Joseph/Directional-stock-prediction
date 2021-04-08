@@ -7,7 +7,7 @@ from src.stock import Metrics
 
 script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
 
-test_data = pd.read_csv("../src/data/test.csv")
+test_data = pd.read_csv("../src/data/test_data/aapl_1440_2017-01-01_2019-02-01.csv")
 x_col = [Metrics.RSI, Metrics.MACD_DECISION, Metrics.OBV]
 y_col = [Metrics.INCREASE_DECREASE.format(Metrics.CLOSE_PRICE)]
 
@@ -18,7 +18,7 @@ class Test(TestCase):
     def test_logistic_regression_model(self):
         logistic_regression_model(test_data, x_col=x_col, y_col=y_col, interval=Metrics.ONE_DAY)
         path_model = "../src/models/saved_models/{}".format(ModelAttributes.LOGISTIC_REGRESSION.format(Metrics.ONE_DAY))
-        path_metrics = "../src/models/model_metrics/{}".format(ModelAttributes.LOGISTIC_REGRESSION.format(Metrics.ONE_DAY + ".csv"))
+        path_metrics = "../src/models/model_metrics/{}".format(ModelAttributes.LOGISTIC_REGRESSION.format(str(Metrics.ONE_DAY) + ".csv"))
         self.assertTrue(os.path.isfile(path_model))
         self.assertTrue(os.path.isfile(path_metrics))
         os.remove(path_model)
