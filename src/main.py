@@ -22,13 +22,13 @@ if __name__ == '__main__':
              Metrics.CROSSOVER_COUNT.format(Metrics.EMA.format(Metrics.CLOSE_PRICE, Metrics.SPAN)), Metrics.EPS,
              Metrics.REVENUE,
              Metrics.PE, Metrics.DEBT_EQUITY, Metrics.PRICE_TO_BOOK]
-    y_col = [Metrics.INCREASE_DECREASE.format(Metrics.CLOSE_PRICE)]
-
+    # y_col = [Metrics.INCREASE_DECREASE.format(Metrics.CLOSE_PRICE)]
+    y_col = ['Close_ema_50_classification']
     for company in companies:
         for file in os.listdir("data/training_data/"):
             if company in file:
                 data = pd.read_csv("data/training_data/{}".format(file))
                 interval = re.search('(\d+)', file).group(0)
-                model_type = ModelAttributes.INCREASE_DECREASE_CLASSIFICATION.format(company + "_" + str(interval))
+                model_type = ModelAttributes.EMA_CLASSIFICATION.format(company + "_" + str(interval))
                 name = ModelAttributes.LOGISTIC_REGRESSION.format(model_type)
                 generate_models(data=data, x_col=x_col, y_col=y_col, model_type=model_type)
