@@ -20,6 +20,7 @@ def generate_all_models():
     x_col = [Metrics.RSI, Metrics.MACD_DECISION, Metrics.OBV, col_derivative, col_distance,
              crossover_count,
              'Score', 'Frequency', 'Sentiment score']
+    # x_col = ['Score', 'Frequency', 'Sentiment score']
     y_cols = [Metrics.INCREASE_DECREASE.format(Metrics.CLOSE_PRICE), 'Close_ema_50_classification']
     # for y_col in y_cols:
     #     for company in companies:
@@ -36,6 +37,7 @@ def generate_all_models():
 
     for y_col in y_cols:
         data = pd.read_csv("data/training_data/aapl_15_2017-07-12_2019-02-01_semantic.csv")
+        data = data.iloc[:1327]
         if "classification" in y_col:
             model_type = ModelAttributes.EMA_CLASSIFICATION.format("apple" + "_" + str(Metrics.FIFTEEN_MIN) + "_sentiment")
         else:
