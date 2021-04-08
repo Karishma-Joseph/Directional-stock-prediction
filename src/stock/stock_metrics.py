@@ -141,7 +141,7 @@ def ema_trend_indicator(data, ema_span):
     data['temp'] = data[col_derivative].shift(-1)
     data[col_ema_slope_classification] = data.apply(lambda x: 1 if x['temp'] > 0 else 0, axis=1)
     data = data.dropna()
-    data = data.drop(columns=['temp', col_distance, col_derivative, col_ema_name])
+    data = data.drop(columns=['temp', col_ema_name])
 
     return data
 
