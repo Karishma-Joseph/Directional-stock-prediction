@@ -250,9 +250,9 @@ def semantic_news_features(data, interval):
 
 
 # Semantic News Features
-def semantic_twitter_features(data, interval):
+def semantic_twitter_features(data, interval, ticker):
     # read data from /twitter_data/...
-    path = "data/twitter_data/twitter_" + interval + ".csv"
+    path = "data/twitter_data/" + ticker + "/twitter_" + interval + ".csv"
     twitter_df = pd.read_csv(path)
     twitter_df['Date'] = pd.to_datetime(twitter_df['Date'])
     twitter_df = twitter_df.set_index('Date')
