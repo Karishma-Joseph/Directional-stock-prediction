@@ -267,10 +267,18 @@ def semantic_twitter_features(data, interval):
 # Function inserts data according to date. If dates match or is between date range, data is inserted
 # Fills in missing data in a forward fashion until next value occurs.
 # Can be used with sentiment features as well
+#################3### NOTE: This function amy not work with semantic features ##########################
+# For simplicity sake, if data does not insert correctly, copy the function and make one for inserting just twitter data
+# and news data features.
 def insert_data(data, new_feature_data, column_name):
     # Make sure data is sorted the same direction
     data = data.sort_index(ascending=True)
     new_feature_data = new_feature_data.sort_index(ascending=True)
+
+    # This is the problem area. This trims the new_feature_data to match the date range of the stock prices.
+    # Example: if stock data dates are between 2020-01-01 < date < 2020-12-31, then the new data is trimmed into that range
+    # so that the algorithm runs faster. I noticed some twitter/news .csv file date ranges are smaller than the stock data. This may
+    # cause an error. It should be reversed so that the stock data is trimmed to fit with the twitter/news data.
     new_data = new_feature_data.loc[data.index[0]:data.index[-1]]
 
     # Create new column with na values
