@@ -187,7 +187,28 @@
 185,07/09/18,0.12282883871788336
 186,07/10/18,0.1036986063836549
 187,07/12/18,0.11606372357881341
-188,07/11/18,0.12424346424691933
+188,07/11/18,0.1242434642469193# Technical Indicators
+        self.data = rsi_metric(data=self.data)
+        self.data = macd_metric(data=self.data)
+        self.data = on_balance_volume(data=self.data)
+        self.data = exponential_moving_average(data=self.data, col=Metrics.CLOSE_PRICE, span=Metrics.SPAN)
+        self.data = ema_trend_indicator(data=self.data, ema_span=Metrics.SPAN)
+        self.data = increase_decrease(data=self.data, col=Metrics.CLOSE_PRICE)
+
+        # Fundamental Indicators
+        # self.data = revenue(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
+        # self.data = eps(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
+        # self.data = pe_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        # self.data = debt_to_equity_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        # self.data = price_to_book_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+
+        # Semantic News Features
+        # Match the times and insert semantic news features
+        self.data = semantic_news_features(data=self.data)
+
+        # Semantic Twitter Features
+        self.data = semantic_twitter_features(data=self.data)
+        return3
 189,07/13/18,0.12287598271985603
 190,07/14/18,0.1167154975992271
 191,07/15/18,0.11719990951146597
