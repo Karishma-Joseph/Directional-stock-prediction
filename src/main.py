@@ -24,7 +24,10 @@ def generate_all_models():
                 if company in file:
                     data = pd.read_csv("data/training_data/{}".format(file))
                     interval = re.search('(\d+)', file).group(0)
-                    model_type = ModelAttributes.EMA_CLASSIFICATION.format(company + "_" + str(interval))
+                    if "classification" in y_col:
+                        model_type = ModelAttributes.EMA_CLASSIFICATION.format(company + "_" + str(interval))
+                    else:
+                        model_type = ModelAttributes.INCREASE_DECREASE_CLASSIFICATION.format(company + "_" + str(interval))
                     generate_models(data=data, x_col=x_col, y_col=y_col, model_type=model_type)
 
 
@@ -44,5 +47,5 @@ def generate_all_data():
 
 
 if __name__ == '__main__':
-    generate_all_data()
-    # generate_all_models()
+    # generate_all_data()
+    generate_all_models()
