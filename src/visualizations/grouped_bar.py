@@ -24,7 +24,7 @@ for company in companies:
                                 accuracy_list.append(round(float(line_split[3]), 4) * 100)
             res.append(accuracy_list)
 
-        fig = plt.figure(figsize=(10, 5))
+        fig = plt.figure(figsize=(10, 7))
         fig.patch.set_facecolor('white')
         ax = fig.add_subplot(111)
 
