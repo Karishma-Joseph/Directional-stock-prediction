@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from selenium import webdriver
 from io import StringIO
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Metrics:
@@ -238,13 +238,14 @@ def price_to_book_ratio(data, ticker, company_name):
 # Semantic News Features
 def semantic_news_features(data, interval):
     # read data from /news_data/...
-    path = "data/news_data/news_" + interval + ".csv"
+    path = "data/news_data/news_" + str(interval) + ".csv"
     news_df = pd.read_csv(path)
     news_df['Date'] = pd.to_datetime(news_df['Date'])
+    news_df = news_df[['Date', 'Sentiment score']]
     news_df = news_df.set_index('Date')
 
     # insert data into dataframe
-    data = insert_data(data, news_df, Metrics.NEWS_SENTIMENT_SCORE)
+    data = insert_data(data, news_df, Metrics.NEWS_SENTIMENT_SCORE, interval)
 
     return data
 
@@ -252,14 +253,14 @@ def semantic_news_features(data, interval):
 # Semantic News Features
 def semantic_twitter_features(data, interval, ticker):
     # read data from /twitter_data/...
-    path = "data/twitter_data/" + ticker + "/twitter_" + interval + ".csv"
+    path = "data/twitter_data/" + ticker + "/small_dataset/twitter_" + str(interval) + ".csv"
     twitter_df = pd.read_csv(path)
     twitter_df['Date'] = pd.to_datetime(twitter_df['Date'])
     twitter_df = twitter_df.set_index('Date')
 
     # insert data into dataframe
-    data = insert_data(data, twitter_df, Metrics.SENTIMENT_SCORE)
-    data = insert_data(data, twitter_df, Metrics.FREQUENCY)
+    data = insert_data(data, twitter_df, Metrics.SENTIMENT_SCORE, interval)
+    data = insert_data(data, twitter_df, Metrics.FREQUENCY, interval)
 
     return data
 
@@ -270,30 +271,62 @@ def semantic_twitter_features(data, interval, ticker):
 #################3### NOTE: This function amy not work with semantic features ##########################
 # For simplicity sake, if data does not insert correctly, copy the function and make one for inserting just twitter data
 # and news data features.
-def insert_data(data, new_feature_data, column_name):
+def insert_data(data, new_feature_data, column_name, interval):
     # Make sure data is sorted the same direction
     data = data.sort_index(ascending=True)
     new_feature_data = new_feature_data.sort_index(ascending=True)
+    new_feature_data = new_feature_data[[column_name]]
 
     # This is the problem area. This trims the new_feature_data to match the date range of the stock prices.
     # Example: if stock data dates are between 2020-01-01 < date < 2020-12-31, then the new data is trimmed into that range
     # so that the algorithm runs faster. I noticed some twitter/news .csv file date ranges are smaller than the stock data. This may
     # cause an error. It should be reversed so that the stock data is trimmed to fit with the twitter/news data.
-    new_data = new_feature_data.loc[data.index[0]:data.index[-1]]
+    # new_data = new_feature_data.loc[data.index[0]:data.index[-1]]
+
+    if new_feature_data.index[0] > data.index[0]:
+        first_index = new_feature_data.index[0]
+    else:
+        first_index = data.index[0]
+
+    if new_feature_data.index[-1] < data.index[-1]:
+        last_index = new_feature_data.index[-1]
+    else:
+        last_index = data.index[-1]
+
+    new_data = new_feature_data.loc[first_index:last_index]
+    data = data[first_index:last_index]
+
 
     # Create new column with na values
     data[column_name] = np.nan
 
     # Runs in O(n). Looks for values between indices. Inserts these values in main data frame
+    i = 0
+    max = new_data.index.get_loc(new_data.index[-1])
     old_index = 0
     old_date = data.index.tolist()[0]
     for new_data_index, row in new_data.iterrows():
         for data_index, data_row in data.iloc[old_index:].iterrows():
-            if new_data_index == data_index or (old_date < new_data_index < data_index):
-                data.at[data_index, column_name] = row
-                old_date = data_index
-                old_index = data.index.get_loc(data_index)
+            if old_date < new_data_index < data_index:
+                temp = data.loc[data_index, column_name]
+                if not np.isnan(temp):
+                    if row[0] != 0:
+                        data.at[data_index, column_name] = (data.at[data_index, column_name] + row[0])/2
+                        print(data.at[data_index, column_name])
+                else:
+                    data.at[data_index, column_name] = row
+
+                if new_data_index + timedelta(minutes=interval) < data_index:
+                    old_index = data.index.get_loc(data_index)
+                    old_date = data.index[old_index - 1]
+                else:
+                    old_date = data_index
+                    old_index = data.index.get_loc(data_index)
+                print("i: {}/{} ".format(i, max))
                 break
+            elif old_date > new_data_index:
+                break
+        i +=1
     # Forward fill any values that are not the same
     data = data.fillna(method='ffill')
     # Forward fill will leave the first values as na. Fill in these values with the value from the next smallest date index

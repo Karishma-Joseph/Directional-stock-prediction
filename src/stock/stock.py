@@ -34,29 +34,47 @@ class Stock:
         self.data = increase_decrease(data=self.data, col=Metrics.CLOSE_PRICE)
 
         # Fundamental Indicators
-        # self.data = revenue(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
-        # self.data = eps(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
-        # self.data = pe_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
-        # self.data = debt_to_equity_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
-        # self.data = price_to_book_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        self.data = revenue(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
+        self.data = eps(data=self.data,  ticker=self.ticker_symbol, company_name=self.company_name, period="quarterly")
+        self.data = pe_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        self.data = debt_to_equity_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
+        self.data = price_to_book_ratio(data=self.data, ticker=self.ticker_symbol, company_name=self.company_name)
 
         if semantic:
             # Semantic News Features
             # Match the times and insert semantic news features
             self.data = semantic_news_features(data=self.data, interval=self.interval)
             # Semantic Twitter Features
-            self.data = semantic_twitter_features(data=self.data, interval = self.interval, ticker = self.ticker_symbol)
+            self.data = semantic_twitter_features(data=self.data, interval=self.interval, ticker=self.ticker_symbol)
         return
+
+    def load_data(self, semantic=False):
+        if semantic:
+            file_name = "data/training_data/{}_{}_{}_{}_{}.csv".format(self.ticker_symbol, self.interval,
+                                                                       self.start_date, self.end_date, "semantic")
+        else:
+            file_name = "data/training_data/{}_{}_{}_{}.csv".format(self.ticker_symbol, self.interval, self.start_date,
+                                                                    self.end_date)
+        self.data = pd.read_csv(file_name)
+        self.data['Date_Time'] = pd.to_datetime(self.data['Date_Time'])
+        self.data = self.data.set_index('Date_Time')
+
+    def add_semantic_features(self):
+        self.load_data()
+        # Semantic News Features
+        # Match the times and insert semantic news features
+        # self.data = semantic_news_features(data=self.data, interval=self.interval)
+        # Semantic Twitter Features
+        self.data = semantic_twitter_features(data=self.data, interval=self.interval, ticker=self.ticker_symbol)
 
     def save_data(self, semantic):
         if semantic:
-            file_name = "data/training_data/{}_{}_{}_{}_{}.csv".format(self.ticker_symbol, self.interval, self.start_date, self.end_date, "semantic")
+            file_name = "data/training_data/{}_{}_{}_{}_{}.csv".format(self.ticker_symbol, self.interval,
+                                                                       self.start_date, self.end_date, "semantic")
         else:
-            file_name = "data/training_data/{}_{}_{}_{}.csv".format(self.ticker_symbol, self.interval, self.start_date, self.end_date)
+            file_name = "data/training_data/{}_{}_{}_{}.csv".format(self.ticker_symbol, self.interval, self.start_date,
+                                                                    self.end_date)
         self.data.to_csv(file_name)
-
-
-
 
     ## Useless function. Unfortunately, yahoo finance would not work for intraday trading
     def get_yf_stock_data(self, ticker_symbol, start_date, end_date, interval):
@@ -93,4 +111,3 @@ class Stock:
                 data.append(temp)
                 current_date = current_date + timedelta(days=60)
             return data
-

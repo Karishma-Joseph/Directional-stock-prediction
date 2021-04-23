@@ -14,10 +14,23 @@ class Twitter:
     FIVE_DAY = "5d"
     SENTIMENT_SCORE = "Score"
 
-    def pullTwitterData(interval):
+    def getIntervalFromString(self, interval):
+        switch = {
+            "ONE_MIN": datetime.timeDelta(minutes=1),
+            "FIVE_MIN": datetime.timeDelta(minutes=5),
+            "FIFTEEN_MIN": datetime.timeDelta(minutes=15),
+            "THIRTY_MIN": datetime.timeDelta(minutes=30),
+            "ONE_HOUR": datetime.timeDelta(minutes=60),
+            "ONE_DAY": datetime.timeDelta(days=1),
+            "FIVE_DAY": datetime.timeDelta(days=5),
+        }
+
+        return switch.get(interval)
+
+    def pullTwitterData(self, interval):
         #adjust fileName and path as needed
         fileName = "twitter_" + interval + "_18_19.csv"
-        timeDelta = getIntervalFromString(interval)
+        timeDelta = self.getIntervalFromString(interval)
         
         with open(fileName, 'w', newline='') as file:
             writer = csv.writer(file)
@@ -31,7 +44,7 @@ class Twitter:
             #change $AMZN to whatever string you're searching for, change dates accordingly
             for i, tweet in enumerate(sntwitter.TwitterSearchScraper('$AMZN since:2018-01-01 until:2020-01-01').get_items()):
                 if tweet.date.replace(tzinfo=None) < startTime - timeDelta:
-                    startTime = startTime - timeDelta)
+                    startTime = startTime - timeDelta
                     time = startTime
 
                     averageSentiment = 0
@@ -51,19 +64,3 @@ class Twitter:
                 startTime = startTime - timeDelta
                 writer.writerow([startTime, 0, 0])
             file.close()
-
-
-    def getIntervalFromString(interval):
-        switch = {
-            ONE_MIN: datetime.timeDelta(minutes=1)
-            FIVE_MIN: datetime.timeDelta(minutes=5)
-            FIFTEEN_MIN: datetime.timeDelta(minutes=15)
-            THIRTY_MIN: datetime.timeDelta(minutes=30)
-            ONE_HOUR: datetime.timeDelta(minutes=60)
-            ONE_DAY: datetime.timeDelta(days=1)
-            FIVE_DAY: datetime.timeDelta(days=5)
-        }
-
-        return switch.get(interval)
-
-            

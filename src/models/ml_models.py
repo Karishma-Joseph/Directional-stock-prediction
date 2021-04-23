@@ -24,10 +24,11 @@ class ModelAttributes:
     SVM = "svm_{}"
     DECISTION_TREE = "decision_tree_{}"
     RANDOM_FOREST = "random_forest_{}"
-    MODEL_LOCATION = script_dir + "/saved_models/{}"
-    MODEL_METRICS_LOCATION = script_dir + "/model_metrics/{}"
+    MODEL_LOCATION = script_dir + "/updated_models/{}"
+    MODEL_METRICS_LOCATION = script_dir + "/updated_metrics/{}"
     EMA_CLASSIFICATION = "ema_classification_{}"
     INCREASE_DECREASE_CLASSIFICATION = "increase_decrease_classification_{}"
+    FEATURE_PLOT_DIRECTORY = script_dir + '/feature_plots/{}'
     TEST_SIZE = 0.33
 
 
@@ -66,7 +67,7 @@ def random_forest_model(data, x_col, y_col, model_type):
 
     random_forest = RandomForestClassifier(max_depth=3, random_state=0, n_estimators=500)
     random_forest = random_forest.fit(X_train, y_train)
-    random_forest_feature_importance(random_forest, x_col)
+    random_forest_feature_importance(random_forest, x_col, model_type)
     model_name = ModelAttributes.RANDOM_FOREST.format(model_type)
     evaluate_model(random_forest, X_test, y_test, model_name)
     save_model(random_forest, model_name, ModelAttributes.MODEL_LOCATION)
@@ -136,16 +137,17 @@ def model_metrics(actual, prediction, model_name):
     metrics_df.to_csv(ModelAttributes.MODEL_METRICS_LOCATION.format(model_name) + ".csv")
     return
 
-def random_forest_feature_importance(model, x_col):
+def random_forest_feature_importance(model, x_col, model_type):
     # plotting feature importances
     features = x_col
     importances = model.feature_importances_
     indices = np.argsort(importances)
     plt.figure(figsize=(10, 15))
-    plt.title('Feature Importances')
+    plt.title('Feature Importance: {}'.format(model_type))
     plt.barh(range(len(indices)), importances[indices], color='b', align='center')
     plt.yticks(range(len(indices)), [features[i] for i in indices])
     plt.xlabel('Relative Importance')
+    plt.savefig(ModelAttributes.FEATURE_PLOT_DIRECTORY.format(model_type + "_feature_plot"))
     plt.show()
 
 def save_model(model, model_name, location):
